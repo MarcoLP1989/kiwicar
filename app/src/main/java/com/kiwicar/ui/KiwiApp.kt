@@ -1,0 +1,45 @@
+package com.kiwicar.ui
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.kiwicar.ui.components.BottomNav
+
+@Composable
+fun KiwiApp() {
+    val navController = rememberNavController()
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+    Scaffold(
+        bottomBar = {
+            BottomNav(currentRoute = currentRoute, onSelect = { route ->
+                navController.navigate(route) {
+                    popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            })
+        },
+    ) { padding ->
+        NavHost(navController, startDestination = "home", modifier = Modifier.padding(padding)) {
+            composable("home") { Placeholder("Home") }
+            composable("charts") { Placeholder("Grafici") }
+            composable("history") { Placeholder("Storico") }
+            composable("settings") { Placeholder("Impostazioni") }
+        }
+    }
+}
+
+@Composable
+private fun Placeholder(title: String) {
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text(title) }
+}
