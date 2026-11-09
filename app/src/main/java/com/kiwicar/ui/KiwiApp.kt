@@ -14,6 +14,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.kiwicar.ui.components.BottomNav
+import com.kiwicar.ui.home.HomeScreen
 
 @Composable
 fun KiwiApp() {
@@ -31,10 +32,11 @@ fun KiwiApp() {
         },
     ) { padding ->
         NavHost(navController, startDestination = "home", modifier = Modifier.padding(padding)) {
-            composable("home") { Placeholder("Home") }
+            composable("home") { HomeScreen(onAddClick = { navController.navigate("add") }) }
             composable("charts") { Placeholder("Grafici") }
             composable("history") { Placeholder("Storico") }
             composable("settings") { Placeholder("Impostazioni") }
+            composable("add") { Placeholder("Nuovo rifornimento") }
         }
     }
 }
