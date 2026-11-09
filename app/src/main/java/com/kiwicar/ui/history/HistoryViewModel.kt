@@ -1,0 +1,42 @@
+package com.kiwicar.ui.history
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.kiwicar.KiwiApplication
+import com.kiwicar.data.Entry
+import com.kiwicar.data.EntryWithStats
+import com.kiwicar.data.KiwiRepository
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+
+class HistoryViewModel(private val repository: KiwiRepository) : ViewModel() {
+
+    /** Newest first (date DESC, ties by km DESC); consumption is derived reactively by the repository. */
+    val items: StateFlow<List<EntryWithStats>> = repository.entriesWithStats()
+        .map { list ->
+            list.sortedWith(
+                compareByDescending<EntryWithStats> { it.entry.dateEpochDay }
+                    .thenByDescending { it.entry.odometerKm }
+                    .thenByDescending { it.entry.id },
+            )
+        }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    suspend fun delete(entry: Entry) = repository.delete(entry)
+
+    suspend fun update(entry: Entry) = repository.save(entry)
+
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                HistoryViewModel((this[APPLICATION_KEY] as KiwiApplication).container.repository)
+            }
+        }
+    }
+}

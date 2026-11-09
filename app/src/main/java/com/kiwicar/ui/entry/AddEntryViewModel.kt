@@ -18,6 +18,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import java.time.LocalDate
@@ -27,6 +29,8 @@ enum class OilChoice { HALF, ONE, OTHER }
 class AddEntryViewModel(
     private val repository: KiwiRepository,
     settingsStore: SettingsStore,
+    /** When set, the form edits that entry instead of creating a new one. */
+    private val editingId: Long? = null,
     today: () -> LocalDate = { LocalDate.now() },
 ) : ViewModel() {
 
@@ -44,6 +48,28 @@ class AddEntryViewModel(
 
     private val _oilChoice = MutableStateFlow(OilChoice.HALF)
     val oilChoice: StateFlow<OilChoice> = _oilChoice
+
+    private var editingEntry: Entry? = null
+
+    init {
+        if (editingId != null) viewModelScope.launch {
+            val e = repository.entriesWithStats().first().firstOrNull { it.entry.id == editingId }?.entry
+                ?: return@launch
+            editingEntry = e
+            _type.value = e.type
+            _dateEpochDay.value = e.dateEpochDay
+            _kmText.value = e.odometerKm.toString()
+            _oilChoice.value = when {
+                e.type != EntryType.OLIO || e.liters == 0.5 -> OilChoice.HALF
+                e.liters == 1.0 -> OilChoice.ONE
+                else -> OilChoice.OTHER
+            }
+            _litersText.value = formatLitersInput(e.liters)
+        }
+    }
+
+    private fun formatLitersInput(l: Double): String =
+        if (l == l.toLong().toDouble()) l.toLong().toString() else l.toString().replace('.', ',')
 
     private val liters = _litersText.map { parseDecimal(it) }
     private val km = _kmText.map { it.trim().toIntOrNull() }
@@ -70,7 +96,7 @@ class AddEntryViewModel(
 
     /** The last stored km of [type] when [km] is lower than it (violating the non-decreasing rule), else null. */
     private fun lastKmBelow(km: Int?, type: EntryType, max: Map<EntryType, Int>?): Int? =
-        max?.get(type)?.takeIf { km != null && km < it }
+        if (editingId != null) null else max?.get(type)?.takeIf { km != null && km < it }
 
     fun setType(type: EntryType) {
         if (type == _type.value) return
@@ -101,12 +127,13 @@ class AddEntryViewModel(
         val l = parseDecimal(_litersText.value)
         val km = _kmText.value.trim().toIntOrNull()
         val type = _type.value
+        if (editingId != null && editingEntry == null) return false
         val valid = l != null && l > 0 && km != null && km > 0 &&
             maxKmByType.value != null && lastKmBelow(km, type, maxKmByType.value) == null
         if (!valid) return false
         _isSaving.value = true
         try {
-            repository.save(Entry(type = type, dateEpochDay = _dateEpochDay.value, odometerKm = km, liters = l))
+            repository.save(Entry(id = editingEntry?.id ?: 0, type = type, dateEpochDay = _dateEpochDay.value, odometerKm = km, liters = l))
         } catch (e: Throwable) {
             _isSaving.value = false
             throw e
@@ -119,6 +146,13 @@ class AddEntryViewModel(
             initializer {
                 val container = (this[APPLICATION_KEY] as KiwiApplication).container
                 AddEntryViewModel(container.repository, container.settingsStore)
+            }
+        }
+
+        fun factoryForEdit(id: Long): ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val container = (this[APPLICATION_KEY] as KiwiApplication).container
+                AddEntryViewModel(container.repository, container.settingsStore, editingId = id)
             }
         }
     }

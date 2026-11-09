@@ -171,4 +171,55 @@ class AddEntryViewModelTest {
         assertFalse(vm.save())
         assertEquals(0, repo.entriesWithStats().first().size)
     }
+
+    private fun editVm(id: Long) = AddEntryViewModel(repo, store, editingId = id) { today }
+
+    private suspend fun entries() = repo.entriesWithStats().first { it.isNotEmpty() }
+
+    @Test
+    fun editModePrefillsFromExistingEntry() = runBlocking {
+        repo.save(Entry(type = EntryType.OLIO, dateEpochDay = 5, odometerKm = 4321, liters = 1.0))
+        val id = entries().single().entry.id
+        val vm = editVm(id)
+        assertEquals("4321", vm.kmText.first { it.isNotEmpty() })
+        assertEquals(EntryType.OLIO, vm.type.value)
+        assertEquals(5L, vm.dateEpochDay.value)
+        assertEquals(OilChoice.ONE, vm.oilChoice.value)
+        assertEquals("1", vm.litersText.value)
+    }
+
+    @Test
+    fun editModeOilWithCustomLitersSelectsOther() = runBlocking {
+        repo.save(Entry(type = EntryType.OLIO, dateEpochDay = 5, odometerKm = 4321, liters = 0.75))
+        val vm = editVm(entries().single().entry.id)
+        vm.kmText.first { it.isNotEmpty() }
+        assertEquals(OilChoice.OTHER, vm.oilChoice.value)
+        assertEquals("0,75", vm.litersText.value)
+    }
+
+    @Test
+    fun editModeAllowsKmBelowMaxAndUpdatesInsteadOfInserting() = runBlocking {
+        seed(EntryType.BENZINA, 1000)
+        repo.save(Entry(type = EntryType.BENZINA, dateEpochDay = 7, odometerKm = 5000, liters = 20.0))
+        val target = entries().first { it.entry.odometerKm == 1000 }.entry
+        val vm = editVm(target.id)
+        vm.kmText.first { it.isNotEmpty() }
+        vm.setKm("4000")
+        assertNull(vm.kmError.value)
+        assertEquals(true, vm.canSave.first { it })
+        assertEquals(true, vm.save())
+        val list = repo.entriesWithStats().first { l -> l.any { it.entry.odometerKm == 4000 } }
+        assertEquals(2, list.size)
+        assertEquals(target.id, list.first { it.entry.odometerKm == 4000 }.entry.id)
+    }
+
+    @Test
+    fun editModeStillRejectsNonPositiveLiters() = runBlocking {
+        seed(EntryType.BENZINA, 1000)
+        val vm = editVm(entries().single().entry.id)
+        vm.kmText.first { it.isNotEmpty() }
+        vm.setLiters("0")
+        assertFalse(vm.canSave.value)
+        assertFalse(vm.save())
+    }
 }

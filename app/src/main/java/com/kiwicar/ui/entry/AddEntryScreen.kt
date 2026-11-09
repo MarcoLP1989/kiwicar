@@ -50,7 +50,11 @@ import java.time.ZoneOffset
 @Composable
 fun AddEntryScreen(
     onSaved: () -> Unit,
-    viewModel: AddEntryViewModel = viewModel(factory = AddEntryViewModel.Factory),
+    editingId: Long? = null,
+    viewModel: AddEntryViewModel = viewModel(
+        key = editingId?.let { "edit-$it" },
+        factory = editingId?.let { AddEntryViewModel.factoryForEdit(it) } ?: AddEntryViewModel.Factory,
+    ),
 ) {
     val type by viewModel.type.collectAsStateWithLifecycle()
     val date by viewModel.dateEpochDay.collectAsStateWithLifecycle()
@@ -71,7 +75,7 @@ fun AddEntryScreen(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text("NUOVO INSERIMENTO", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+        Text(if (editingId != null) "MODIFICA INSERIMENTO" else "NUOVO INSERIMENTO", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
 
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             TypeButton("Benzina", KiwiIcons.Pump, type == EntryType.BENZINA, KiwiSecondary, Modifier.weight(1f)) {
