@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.kiwicar.ui.charts.ChartsScreen
 import com.kiwicar.ui.components.BottomNav
 import com.kiwicar.ui.entry.AddEntryScreen
 import com.kiwicar.ui.home.HomeScreen
@@ -35,7 +36,7 @@ fun KiwiApp() {
     ) { padding ->
         NavHost(navController, startDestination = "home", modifier = Modifier.padding(padding)) {
             composable("home") { HomeScreen(onAddClick = { navController.navigate("add") }) }
-            composable("charts") { Placeholder("Grafici") }
+            composable("charts") { ChartsScreen(onEditEntry = { /* edit route added in Task 10 */ }) }
             composable("history") { Placeholder("Storico") }
             composable("settings") { Placeholder("Impostazioni") }
             composable("add") { AddEntryScreen(onSaved = { navController.popBackStack() }) }
