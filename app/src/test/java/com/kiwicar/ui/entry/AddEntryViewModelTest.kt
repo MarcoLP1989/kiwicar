@@ -5,6 +5,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.kiwicar.data.Entry
 import com.kiwicar.data.EntryType
+import com.kiwicar.data.KiwiDao
 import com.kiwicar.data.KiwiDatabase
 import com.kiwicar.data.KiwiRepository
 import com.kiwicar.data.KiwiSettings
@@ -91,9 +92,102 @@ class AddEntryViewModelTest {
         seed(EntryType.BENZINA, 181560)
         val vm = vm()
         vm.setKm("181000"); vm.setLiters("30")
+        vm.onKmFocusLost()
         val hint = vm.kmError.first { it != null }
-        assertEquals("Km inferiori all'ultimo inserimento (181.560 km)", hint)
+        assertEquals("Km inferiori al rifornimento del 08/11/2026 (181.560 km)", hint)
         assertFalse(vm.canSave.value)
+    }
+
+    private suspend fun seedOn(type: EntryType, day: Long, km: Int) =
+        repo.save(Entry(type = type, dateEpochDay = day, odometerKm = km, liters = 10.0))
+
+    private val d = LocalDate.of(2026, 11, 1).toEpochDay()
+
+    @Test
+    fun backdatedEntryBetweenTwoExistingOnesIsAllowed() = runBlocking {
+        seedOn(EntryType.BENZINA, d, 1000)
+        seedOn(EntryType.BENZINA, d + 10, 2000)
+        val vm = vm()
+        vm.setDate(d + 5); vm.setKm("1500"); vm.setLiters("30")
+        assertEquals(true, vm.canSave.first { it })
+        assertNull(vm.kmError.value)
+        assertEquals(true, vm.save())
+    }
+
+    @Test
+    fun backdatedEntryAboveNextDatedEntryIsRejectedNamingTheUpperBound() = runBlocking {
+        seedOn(EntryType.BENZINA, d, 1000)
+        seedOn(EntryType.BENZINA, d + 10, 2000)
+        val vm = vm()
+        vm.setDate(d + 5); vm.setKm("2500"); vm.setLiters("30")
+        assertEquals("Km superiori al rifornimento del 11/11/2026 (2.000 km)", vm.kmError.first { it != null })
+        assertFalse(vm.canSave.value)
+        assertFalse(vm.save())
+    }
+
+    @Test
+    fun backdatedEntryBelowPreviousDatedEntryIsRejectedNamingTheLowerBound() = runBlocking {
+        seedOn(EntryType.BENZINA, d, 1000)
+        seedOn(EntryType.BENZINA, d + 10, 2000)
+        val vm = vm()
+        vm.setDate(d + 5); vm.setKm("900"); vm.setLiters("30")
+        vm.onKmFocusLost()
+        assertEquals("Km inferiori al rifornimento del 01/11/2026 (1.000 km)", vm.kmError.first { it != null })
+        assertFalse(vm.canSave.value)
+    }
+
+    @Test
+    fun backdatedBoundsAreInclusiveAndIgnoreOtherType() = runBlocking {
+        seedOn(EntryType.BENZINA, d, 1000)
+        seedOn(EntryType.BENZINA, d + 10, 2000)
+        seedOn(EntryType.OLIO, d + 5, 1)
+        val vm = vm()
+        vm.setDate(d + 5); vm.setLiters("30")
+        vm.setKm("1000"); assertEquals(true, vm.canSave.first { it })
+        vm.setKm("2000"); assertEquals(true, vm.canSave.first { it })
+    }
+
+    @Test
+    fun typingACorrectValueDigitByDigitNeverShowsTheError() = runBlocking {
+        seedOn(EntryType.BENZINA, d, 99000)
+        val vm = vm()
+        vm.setDate(d + 1); vm.setLiters("30")
+        for (prefix in listOf("1", "10", "100", "1000", "10000", "100000")) {
+            vm.setKm(prefix)
+            assertNull("hint shown while typing '$prefix'", vm.kmError.value)
+        }
+        assertEquals(true, vm.canSave.first { it })
+        // A wrong value only gets flagged once the field loses focus, and typing hides it again.
+        vm.setKm("1")
+        assertFalse(vm.canSave.value)
+        vm.onKmFocusLost()
+        assertNotNull(vm.kmError.value)
+        vm.setKm("10")
+        assertNull(vm.kmError.value)
+    }
+
+    @Test
+    fun saveFailureKeepsInputPostsMessageAndAllowsRetry() = runBlocking {
+        val failing = object : KiwiDao by db.kiwiDao() {
+            override suspend fun upsert(e: Entry): Long = throw java.io.IOException("disk full")
+        }
+        val vm = AddEntryViewModel(KiwiRepository(failing, store), store) { today }
+        vm.setKm("1000"); vm.setLiters("40")
+        vm.canSave.first { it }
+        assertFalse(vm.save())
+        assertEquals("Salvataggio non riuscito, riprova", vm.messages.first())
+        assertFalse(vm.isSaving.value)
+        assertEquals("1000", vm.kmText.value)
+        assertFalse(vm.saved.value)
+    }
+
+    @Test
+    fun submitSetsSavedOnlyOnSuccess() = runBlocking {
+        val vm = vm()
+        vm.setKm("1000"); vm.setLiters("40")
+        vm.canSave.first { it }
+        vm.submit()
+        assertEquals(true, vm.saved.first { it })
     }
 
     @Test

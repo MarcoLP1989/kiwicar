@@ -1,6 +1,7 @@
 package com.kiwicar.ui.entry
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,6 +21,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
@@ -28,9 +31,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -44,7 +48,6 @@ import com.kiwicar.ui.formatDate
 import com.kiwicar.ui.formatMoney
 import com.kiwicar.ui.theme.KiwiSecondary
 import com.kiwicar.ui.theme.KiwiTertiary
-import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -67,13 +70,17 @@ fun AddEntryScreen(
     val canSave by viewModel.canSave.collectAsStateWithLifecycle()
     val isSaving by viewModel.isSaving.collectAsStateWithLifecycle()
     val notFound by viewModel.notFound.collectAsStateWithLifecycle()
-    val scope = rememberCoroutineScope()
+    val saved by viewModel.saved.collectAsStateWithLifecycle()
+    val snackbar = remember { SnackbarHostState() }
     LaunchedEffect(notFound) { if (notFound) onSaved() }
+    LaunchedEffect(saved) { if (saved) onSaved() }
+    LaunchedEffect(viewModel) { viewModel.messages.collect { snackbar.showSnackbar(it) } }
     var showPicker by remember { mutableStateOf(false) }
 
     val accent = if (type == EntryType.OLIO) KiwiTertiary else KiwiSecondary
     val decimalKeys = KeyboardOptions(keyboardType = KeyboardType.Decimal)
 
+    Box(Modifier.fillMaxSize()) {
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -101,7 +108,7 @@ fun AddEntryScreen(
             supportingText = kmError?.let { { Text(it) } },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().onFocusChanged { if (!it.isFocused) viewModel.onKmFocusLost() },
         )
 
         if (type == EntryType.BENZINA) {
@@ -145,11 +152,13 @@ fun AddEntryScreen(
         }
 
         Button(
-            onClick = { scope.launch { if (viewModel.save()) onSaved() } },
+            onClick = viewModel::submit,
             enabled = canSave && !isSaving,
             colors = ButtonDefaults.buttonColors(containerColor = accent, contentColor = Color.Black),
             modifier = Modifier.fillMaxWidth().height(56.dp),
         ) { Text("Salva") }
+    }
+    SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter).padding(16.dp))
     }
 
     if (showPicker) DatePickerDialogFor(date, { showPicker = false }) { viewModel.setDate(it); showPicker = false }
