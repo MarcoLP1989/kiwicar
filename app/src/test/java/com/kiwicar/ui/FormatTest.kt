@@ -1,5 +1,6 @@
 package com.kiwicar.ui
 
+import com.kiwicar.data.EntryType
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -9,6 +10,20 @@ class FormatTest {
         assertEquals("6,8", formatConsumption(6.8))
         assertEquals("6,0", formatConsumption(6.0))
         assertEquals("—", formatConsumption(null))
+    }
+
+    @Test
+    fun consumptionWithUnitDependsOnType() {
+        assertEquals("6,8 L/100 km", formatConsumption(6.8, EntryType.BENZINA))
+        assertEquals("0,5 L/1.000 km", formatConsumption(0.5, EntryType.OLIO))
+        assertEquals("—", formatConsumption(null, EntryType.OLIO))
+    }
+
+    @Test
+    fun litersUseOneToTwoDecimals() {
+        assertEquals("40,0 L", formatLiters(40.0))
+        assertEquals("0,5 L", formatLiters(0.5))
+        assertEquals("40,25 L", formatLiters(40.25))
     }
 
     @Test

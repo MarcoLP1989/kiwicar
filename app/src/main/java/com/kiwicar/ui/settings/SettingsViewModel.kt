@@ -1,5 +1,6 @@
 package com.kiwicar.ui.settings
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -14,7 +15,11 @@ import com.kiwicar.data.KiwiRepository
 import com.kiwicar.data.SettingsStore
 import com.kiwicar.export.CsvExporter
 import com.kiwicar.ui.parseDecimal
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -50,6 +55,26 @@ class SettingsViewModel(
         }
     }
 
+    private val _messages = Channel<String>(Channel.BUFFERED)
+    /** One-shot user-facing messages ("Salvato" or a failure) for the Snackbar. */
+    val messages: Flow<String> = _messages.receiveAsFlow()
+
+    fun onSaveCar() { viewModelScope.launch { saveCar() } }
+    fun onSavePrices() { viewModelScope.launch { savePrices() } }
+
+    /** Runs a store write; posts "Salvato" on success or an error message on IO failure (input stays as typed). */
+    private suspend fun persist(block: suspend () -> Unit): Boolean = try {
+        block()
+        _messages.trySend("Salvato")
+        true
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        Log.e("SettingsViewModel", "Save failed", e)
+        _messages.trySend("Salvataggio non riuscito, riprova")
+        false
+    }
+
     /** Persists marca/modello and initial km; false (with [carError]) when the km is not a non-negative integer. */
     suspend fun saveCar(): Boolean {
         val km = initialKm.trim().toIntOrNull()?.takeIf { it >= 0 }
@@ -59,7 +84,7 @@ class SettingsViewModel(
         }
         carError = null
         val name = carName.trim()
-        settingsStore.update { it.copy(carName = name, initialKm = km) }
+        if (!persist { settingsStore.update { it.copy(carName = name, initialKm = km) } }) return false
         carName = name
         return true
     }
@@ -73,8 +98,7 @@ class SettingsViewModel(
             return false
         }
         pricesError = null
-        settingsStore.update { it.copy(fuelPricePerLiter = fuel, oilPricePerLiter = oil) }
-        return true
+        return persist { settingsStore.update { it.copy(fuelPricePerLiter = fuel, oilPricePerLiter = oil) } }
     }
 
     suspend fun buildCsv(): String = CsvExporter.toCsv(repository.allEntries())

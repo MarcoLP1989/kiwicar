@@ -22,9 +22,8 @@ import com.kiwicar.ui.EMPTY_VALUE
 import com.kiwicar.ui.formatConsumption
 import com.kiwicar.ui.formatDate
 import com.kiwicar.ui.formatKm
+import com.kiwicar.ui.formatLiters
 import com.kiwicar.ui.formatMoney
-import java.text.NumberFormat
-import java.util.Locale
 
 /** Detail popup for one entry; shared by Charts and History. Delete asks for confirmation first. */
 @Composable
@@ -37,12 +36,8 @@ fun EntryDetailDialog(
     var confirmDelete by rememberSaveable { mutableStateOf(false) }
     val e = entryWithStats.entry
     val isFuel = e.type == EntryType.BENZINA
-    val unit = if (isFuel) "L/100 km" else "L/1.000 km"
-    val liters = NumberFormat.getNumberInstance(Locale.ITALY).apply {
-        minimumFractionDigits = 1
-        maximumFractionDigits = 2
-    }.format(e.liters) + " L"
-    val consumption = entryWithStats.consumption?.let { "${formatConsumption(it)} $unit" } ?: EMPTY_VALUE
+    val liters = formatLiters(e.liters)
+    val consumption = formatConsumption(entryWithStats.consumption, e.type)
 
     if (confirmDelete) {
         AlertDialog(

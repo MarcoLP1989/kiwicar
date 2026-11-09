@@ -79,6 +79,7 @@ class HomeViewModelTest {
         val s = vm().state.first { it.loaded && it.oilTopUps.isNotEmpty() }
         assertEquals(1600, s.currentKm)
         assertEquals(6.0, s.stats.fuelLper100!!, 0.001)
+        assertEquals(2.0, s.fuelPricePerLiter, 0.0)
         assertNull(s.stats.oilLper1000)
         assertEquals(listOf(0.5), s.oilTopUps)
     }

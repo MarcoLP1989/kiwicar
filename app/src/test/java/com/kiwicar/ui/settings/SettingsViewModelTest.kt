@@ -80,6 +80,15 @@ class SettingsViewModelTest {
     }
 
     @Test
+    fun successfulSavesPostSavedMessage() = runBlocking {
+        val vm = vm()
+        assertTrue(vm.savePrices())
+        assertEquals("Salvato", vm.messages.first())
+        assertTrue(vm.saveCar())
+        assertEquals("Salvato", vm.messages.first())
+    }
+
+    @Test
     fun invalidPriceIsRejectedAndNotPersisted() = runBlocking {
         val vm = vm()
         for (bad in listOf("abc", "-1", "")) {

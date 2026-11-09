@@ -63,6 +63,13 @@ fun HomeContent(state: HomeUiState, onAddClick: () -> Unit) {
                 StatValue(formatMoney(state.stats.avgYearlyCost), "all’anno")
             }
         }
+        if (state.loaded && state.fuelPricePerLiter == 0.0) {
+            Text(
+                "Imposta il prezzo della benzina nelle Impostazioni",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
         StatCard("Rabbocchi olio", KiwiIcons.Drop, KiwiTertiary) {
             OilBars(state.oilTopUps)
         }

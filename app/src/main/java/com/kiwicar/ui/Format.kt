@@ -1,5 +1,6 @@
 package com.kiwicar.ui
 
+import com.kiwicar.data.EntryType
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -12,6 +13,17 @@ const val EMPTY_VALUE = "—"
 
 /** Consumption with one decimal (e.g. `6,8`), or `—` when unknown. */
 fun formatConsumption(value: Double?): String = value?.let { decimals(1).format(it) } ?: EMPTY_VALUE
+
+/** Consumption with its unit (`L/100 km` for fuel, `L/1.000 km` for oil), or `—` when unknown. */
+fun formatConsumption(value: Double?, type: EntryType): String =
+    value?.let { formatConsumption(it) + " " + if (type == EntryType.BENZINA) "L/100 km" else "L/1.000 km" } ?: EMPTY_VALUE
+
+/** Litres with 1 to 2 decimals and unit (e.g. `40,5 L`). */
+fun formatLiters(liters: Double): String =
+    NumberFormat.getNumberInstance(Locale.ITALY).apply {
+        minimumFractionDigits = 1
+        maximumFractionDigits = 2
+    }.format(liters) + " L"
 
 /** Money with two decimals (e.g. `1.234,50 €`). */
 fun formatMoney(value: Double): String = decimals(2).format(value) + " €"

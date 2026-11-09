@@ -24,6 +24,7 @@ data class HomeUiState(
     val loaded: Boolean = false,
     val carName: String = "",
     val currentKm: Int = 0,
+    val fuelPricePerLiter: Double = 0.0,
     val stats: HomeStats = HomeStats(null, null, 0.0, 0.0),
     /** Liters of the most recent OLIO top-ups, oldest first (max [MAX_OIL_BARS]). */
     val oilTopUps: List<Double> = emptyList(),
@@ -46,6 +47,7 @@ class HomeViewModel(
         HomeUiState(
             loaded = true,
             carName = settings.carName,
+            fuelPricePerLiter = settings.fuelPricePerLiter,
             currentKm = maxOf(settings.initialKm, entries.maxOfOrNull { it.entry.odometerKm } ?: 0),
             oilTopUps = entries
                 .filter { it.entry.type == EntryType.OLIO }

@@ -1,14 +1,18 @@
 package com.kiwicar.data
 
 import android.content.Context
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import java.io.IOException
 
 data class KiwiSettings(
     val carName: String = "",
@@ -18,12 +22,18 @@ data class KiwiSettings(
 )
 
 // Single process-wide instance, as required by DataStore.
-private val Context.kiwiDataStore by preferencesDataStore(name = "kiwi_settings")
+// A corrupt prefs file is replaced by defaults instead of crashing.
+private val Context.kiwiDataStore by preferencesDataStore(
+    name = "kiwi_settings",
+    corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() },
+)
 
 class SettingsStore(context: Context) {
     private val dataStore = context.applicationContext.kiwiDataStore
 
-    val settings: Flow<KiwiSettings> = dataStore.data.map { it.toSettings() }
+    val settings: Flow<KiwiSettings> = dataStore.data
+        .catch { if (it is IOException) emit(emptyPreferences()) else throw it }
+        .map { it.toSettings() }
 
     suspend fun update(block: (KiwiSettings) -> KiwiSettings) {
         dataStore.edit { prefs ->

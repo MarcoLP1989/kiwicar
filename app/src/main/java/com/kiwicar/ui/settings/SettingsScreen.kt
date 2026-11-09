@@ -3,6 +3,7 @@ package com.kiwicar.ui.settings
 import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,8 +18,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,7 +51,10 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel(factory = SettingsVi
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var exportError by remember { mutableStateOf(false) }
+    val snackbar = remember { SnackbarHostState() }
+    LaunchedEffect(viewModel) { viewModel.messages.collect { snackbar.showSnackbar(it) } }
 
+    Box(Modifier.fillMaxSize()) {
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -72,7 +79,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel(factory = SettingsVi
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )
-        Button(onClick = { scope.launch { viewModel.saveCar() } }, Modifier.fillMaxWidth()) { Text("Salva auto") }
+        Button(onClick = viewModel::onSaveCar, Modifier.fillMaxWidth()) { Text("Salva auto") }
 
         SectionTitle("PREZZI", KiwiIcons.Euro)
         val decimalKeys = KeyboardOptions(keyboardType = KeyboardType.Decimal)
@@ -95,7 +102,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel(factory = SettingsVi
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )
-        Button(onClick = { scope.launch { viewModel.savePrices() } }, Modifier.fillMaxWidth()) { Text("Salva prezzi") }
+        Button(onClick = viewModel::onSavePrices, Modifier.fillMaxWidth()) { Text("Salva prezzi") }
 
         SectionTitle("DATI", KiwiIcons.Download)
         OutlinedButton(
@@ -121,6 +128,8 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel(factory = SettingsVi
         if (exportError) {
             Text("Esportazione non riuscita", color = MaterialTheme.colorScheme.error)
         }
+    }
+    SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter).padding(16.dp))
     }
 }
 

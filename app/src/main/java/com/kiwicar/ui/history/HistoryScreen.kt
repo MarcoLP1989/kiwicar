@@ -27,17 +27,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kiwicar.data.EntryType
 import com.kiwicar.data.EntryWithStats
-import com.kiwicar.ui.EMPTY_VALUE
 import com.kiwicar.ui.components.EntryDetailDialog
 import com.kiwicar.ui.components.KiwiIcons
 import com.kiwicar.ui.formatConsumption
 import com.kiwicar.ui.formatDate
 import com.kiwicar.ui.formatKm
+import com.kiwicar.ui.formatLiters
 import com.kiwicar.ui.formatMoney
 import com.kiwicar.ui.theme.KiwiSecondary
 import com.kiwicar.ui.theme.KiwiTertiary
-import java.text.NumberFormat
-import java.util.Locale
 
 @Composable
 fun HistoryScreen(
@@ -81,12 +79,8 @@ private fun HistoryRow(item: EntryWithStats, modifier: Modifier) {
     val e = item.entry
     val isFuel = e.type == EntryType.BENZINA
     val accent = if (isFuel) KiwiSecondary else KiwiTertiary
-    val unit = if (isFuel) "L/100 km" else "L/1.000 km"
-    val liters = NumberFormat.getNumberInstance(Locale.ITALY).apply {
-        minimumFractionDigits = 1
-        maximumFractionDigits = 2
-    }.format(e.liters) + " L"
-    val consumption = item.consumption?.let { "${formatConsumption(it)} $unit" } ?: EMPTY_VALUE
+    val liters = formatLiters(e.liters)
+    val consumption = formatConsumption(item.consumption, e.type)
 
     Row(
         modifier.fillMaxWidth().padding(vertical = 12.dp),
