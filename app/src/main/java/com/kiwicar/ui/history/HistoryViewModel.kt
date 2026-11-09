@@ -10,6 +10,9 @@ import com.kiwicar.KiwiApplication
 import com.kiwicar.data.Entry
 import com.kiwicar.data.EntryWithStats
 import com.kiwicar.data.KiwiRepository
+import android.util.Log
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -29,6 +32,19 @@ class HistoryViewModel(private val repository: KiwiRepository) : ViewModel() {
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     suspend fun delete(entry: Entry) = repository.delete(entry)
+
+    /** Fire-and-forget delete that survives the screen leaving composition; a failure is logged, not thrown. */
+    fun deleteAsync(entry: Entry) {
+        viewModelScope.launch {
+            try {
+                repository.delete(entry)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.e("HistoryViewModel", "Delete failed", e)
+            }
+        }
+    }
 
     suspend fun update(entry: Entry) = repository.save(entry)
 

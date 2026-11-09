@@ -18,7 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,7 +36,6 @@ import com.kiwicar.ui.formatKm
 import com.kiwicar.ui.formatMoney
 import com.kiwicar.ui.theme.KiwiSecondary
 import com.kiwicar.ui.theme.KiwiTertiary
-import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -48,7 +46,6 @@ fun HistoryScreen(
 ) {
     val items by viewModel.items.collectAsStateWithLifecycle()
     var selected by remember { mutableStateOf<EntryWithStats?>(null) }
-    val scope = rememberCoroutineScope()
 
     Column(Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
         Text(
@@ -73,7 +70,7 @@ fun HistoryScreen(
         EntryDetailDialog(
             entryWithStats = e,
             onEdit = { selected = null; onEditEntry(e.entry.id) },
-            onDelete = { scope.launch { viewModel.delete(e.entry) }; selected = null },
+            onDelete = { viewModel.deleteAsync(e.entry); selected = null },
             onDismiss = { selected = null },
         )
     }

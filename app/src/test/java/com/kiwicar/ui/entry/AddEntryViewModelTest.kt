@@ -181,7 +181,8 @@ class AddEntryViewModelTest {
         repo.save(Entry(type = EntryType.OLIO, dateEpochDay = 5, odometerKm = 4321, liters = 1.0))
         val id = entries().single().entry.id
         val vm = editVm(id)
-        assertEquals("4321", vm.kmText.first { it.isNotEmpty() })
+        vm.loaded.first { it }
+        assertEquals("4321", vm.kmText.value)
         assertEquals(EntryType.OLIO, vm.type.value)
         assertEquals(5L, vm.dateEpochDay.value)
         assertEquals(OilChoice.ONE, vm.oilChoice.value)
@@ -192,7 +193,7 @@ class AddEntryViewModelTest {
     fun editModeOilWithCustomLitersSelectsOther() = runBlocking {
         repo.save(Entry(type = EntryType.OLIO, dateEpochDay = 5, odometerKm = 4321, liters = 0.75))
         val vm = editVm(entries().single().entry.id)
-        vm.kmText.first { it.isNotEmpty() }
+        vm.loaded.first { it }
         assertEquals(OilChoice.OTHER, vm.oilChoice.value)
         assertEquals("0,75", vm.litersText.value)
     }
@@ -203,7 +204,7 @@ class AddEntryViewModelTest {
         repo.save(Entry(type = EntryType.BENZINA, dateEpochDay = 7, odometerKm = 5000, liters = 20.0))
         val target = entries().first { it.entry.odometerKm == 1000 }.entry
         val vm = editVm(target.id)
-        vm.kmText.first { it.isNotEmpty() }
+        vm.loaded.first { it }
         vm.setKm("4000")
         assertNull(vm.kmError.value)
         assertEquals(true, vm.canSave.first { it })
@@ -217,8 +218,17 @@ class AddEntryViewModelTest {
     fun editModeStillRejectsNonPositiveLiters() = runBlocking {
         seed(EntryType.BENZINA, 1000)
         val vm = editVm(entries().single().entry.id)
-        vm.kmText.first { it.isNotEmpty() }
+        vm.loaded.first { it }
         vm.setLiters("0")
+        assertFalse(vm.canSave.value)
+        assertFalse(vm.save())
+    }
+
+    @Test
+    fun editModeWithMissingIdIsNotFoundAndCannotSave() = runBlocking {
+        val vm = editVm(9999)
+        assertEquals(true, vm.notFound.first { it })
+        vm.setKm("1000"); vm.setLiters("10")
         assertFalse(vm.canSave.value)
         assertFalse(vm.save())
     }

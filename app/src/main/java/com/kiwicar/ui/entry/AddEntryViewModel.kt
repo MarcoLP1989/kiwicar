@@ -51,10 +51,21 @@ class AddEntryViewModel(
 
     private var editingEntry: Entry? = null
 
+    private val _loaded = MutableStateFlow(editingId == null)
+    /** True once the form is ready: immediately for a new entry, after the prefill (set last) in edit mode. */
+    val loaded: StateFlow<Boolean> = _loaded
+
+    private val _notFound = MutableStateFlow(false)
+    /** Edit mode only: the entry to edit no longer exists (the screen should close). */
+    val notFound: StateFlow<Boolean> = _notFound
+
     init {
         if (editingId != null) viewModelScope.launch {
             val e = repository.entriesWithStats().first().firstOrNull { it.entry.id == editingId }?.entry
-                ?: return@launch
+            if (e == null) {
+                _notFound.value = true
+                return@launch
+            }
             editingEntry = e
             _type.value = e.type
             _dateEpochDay.value = e.dateEpochDay
@@ -65,6 +76,7 @@ class AddEntryViewModel(
                 else -> OilChoice.OTHER
             }
             _litersText.value = formatLitersInput(e.liters)
+            _loaded.value = true
         }
     }
 
@@ -90,8 +102,8 @@ class AddEntryViewModel(
     }.stateIn(viewModelScope, SharingStarted.Eagerly, 0.0)
 
     // Computed from the sources (not from kmError) so it never lags behind the km rule.
-    val canSave: StateFlow<Boolean> = combine(liters, km, _type, maxKmByType) { l, km, type, max ->
-        max != null && l != null && l > 0 && km != null && km > 0 && lastKmBelow(km, type, max) == null
+    val canSave: StateFlow<Boolean> = combine(liters, km, _type, maxKmByType, _loaded) { l, km, type, max, loaded ->
+        loaded && max != null && l != null && l > 0 && km != null && km > 0 && lastKmBelow(km, type, max) == null
     }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     /** The last stored km of [type] when [km] is lower than it (violating the non-decreasing rule), else null. */
@@ -127,7 +139,7 @@ class AddEntryViewModel(
         val l = parseDecimal(_litersText.value)
         val km = _kmText.value.trim().toIntOrNull()
         val type = _type.value
-        if (editingId != null && editingEntry == null) return false
+        if (!_loaded.value) return false
         val valid = l != null && l > 0 && km != null && km > 0 &&
             maxKmByType.value != null && lastKmBelow(km, type, maxKmByType.value) == null
         if (!valid) return false

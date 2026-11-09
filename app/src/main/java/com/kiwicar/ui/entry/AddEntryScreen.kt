@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,7 +66,9 @@ fun AddEntryScreen(
     val cost by viewModel.estimatedCost.collectAsStateWithLifecycle()
     val canSave by viewModel.canSave.collectAsStateWithLifecycle()
     val isSaving by viewModel.isSaving.collectAsStateWithLifecycle()
+    val notFound by viewModel.notFound.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
+    LaunchedEffect(notFound) { if (notFound) onSaved() }
     var showPicker by remember { mutableStateOf(false) }
 
     val accent = if (type == EntryType.OLIO) KiwiTertiary else KiwiSecondary

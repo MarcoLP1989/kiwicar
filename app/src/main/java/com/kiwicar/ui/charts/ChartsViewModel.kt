@@ -84,7 +84,15 @@ class ChartsViewModel(
     fun setWindow(window: ChartWindow) = _window.update { window }
 
     fun delete(entry: Entry) {
-        viewModelScope.launch { repository.delete(entry) }
+        viewModelScope.launch {
+            try {
+                repository.delete(entry)
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                android.util.Log.e("ChartsViewModel", "Delete failed", e)
+            }
+        }
     }
 
     companion object {
