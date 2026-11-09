@@ -11,9 +11,12 @@ import com.kiwicar.data.EntryType
 import com.kiwicar.data.HomeStats
 import com.kiwicar.data.KiwiRepository
 import com.kiwicar.data.SettingsStore
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import java.time.LocalDate
 
@@ -34,21 +37,23 @@ class HomeViewModel(
     today: () -> LocalDate = { LocalDate.now() },
 ) : ViewModel() {
 
+    // today() is re-evaluated on every upstream emission (and on re-subscription), not frozen at creation.
+    @OptIn(ExperimentalCoroutinesApi::class)
     val state: StateFlow<HomeUiState> = combine(
         settingsStore.settings,
-        repository.homeStats(today()),
         repository.entriesWithStats(),
-    ) { settings, stats, entries ->
+    ) { settings, entries ->
         HomeUiState(
             loaded = true,
             carName = settings.carName,
             currentKm = maxOf(settings.initialKm, entries.maxOfOrNull { it.entry.odometerKm } ?: 0),
-            stats = stats,
             oilTopUps = entries
                 .filter { it.entry.type == EntryType.OLIO }
                 .takeLast(MAX_OIL_BARS)
                 .map { it.entry.liters },
         )
+    }.flatMapLatest { base ->
+        repository.homeStats(today()).map { base.copy(stats = it) }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), HomeUiState())
 
     companion object {

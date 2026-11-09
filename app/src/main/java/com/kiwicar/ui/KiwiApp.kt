@@ -23,6 +23,7 @@ fun KiwiApp() {
     Scaffold(
         bottomBar = {
             BottomNav(currentRoute = currentRoute, onSelect = { route ->
+                if (currentRoute == "add") navController.popBackStack()
                 navController.navigate(route) {
                     popUpTo(navController.graph.findStartDestination().id) { saveState = true }
                     launchSingleTop = true

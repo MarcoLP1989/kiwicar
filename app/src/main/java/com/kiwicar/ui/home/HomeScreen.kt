@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -42,7 +41,7 @@ fun HomeScreen(onAddClick: () -> Unit, viewModel: HomeViewModel = viewModel(fact
 @Composable
 fun HomeContent(state: HomeUiState, onAddClick: () -> Unit) {
     Column(
-        Modifier.fillMaxSize().statusBarsPadding().verticalScroll(rememberScrollState()).padding(16.dp),
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Text(
@@ -58,7 +57,7 @@ fun HomeContent(state: HomeUiState, onAddClick: () -> Unit) {
                 StatValue(formatConsumption(state.stats.oilLper1000), "L/1.000 km olio")
             }
         }
-        StatCard("Costo medio", KiwiIcons.Euro, KiwiSecondary) {
+        StatCard("Costo medio benzina", KiwiIcons.Euro, KiwiSecondary) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 StatValue(formatMoney(state.stats.avgMonthlyCost), "al mese")
                 StatValue(formatMoney(state.stats.avgYearlyCost), "all’anno")

@@ -1,12 +1,12 @@
 package com.kiwicar.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -48,15 +48,15 @@ fun BottomNav(currentRoute: String?, onSelect: (String) -> Unit, modifier: Modif
                 } else Modifier
                 Row(
                     modifier = Modifier
-                        .height(40.dp)
+                        .defaultMinSize(minHeight = 48.dp)
                         .then(pill)
-                        .clickable(role = Role.Tab) { onSelect(tab.route) }
+                        .selectable(selected = selected, role = Role.Tab, onClick = { onSelect(tab.route) })
                         .padding(horizontal = if (selected) 16.dp else 12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(
                         imageVector = tab.icon,
-                        contentDescription = tab.label,
+                        contentDescription = if (selected) null else tab.label,
                         tint = if (selected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     if (selected) {
