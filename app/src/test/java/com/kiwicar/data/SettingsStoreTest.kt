@@ -5,6 +5,7 @@ import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -15,9 +16,11 @@ import org.robolectric.annotation.Config
 class SettingsStoreTest {
     private val store = SettingsStore(ApplicationProvider.getApplicationContext<Context>())
 
+    @Before
+    fun resetSharedStore() = runBlocking { store.update { KiwiSettings() } }
+
     @Test
     fun defaultsThenUpdatesArePersistedAndMerged() = runBlocking {
-        // single test: the process-wide DataStore is shared across tests, so defaults are only checked first here
         assertEquals(KiwiSettings(), store.settings.first())
         store.update { it.copy(fuelPricePerLiter = 1.72) }
         store.update { it.copy(carName = "Fiat Panda", initialKm = 85000, oilPricePerLiter = 9.5) }
