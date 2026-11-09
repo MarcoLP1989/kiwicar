@@ -18,3 +18,12 @@ fun formatMoney(value: Double): String = decimals(2).format(value) + " €"
 
 /** Kilometres with thousands separator (e.g. `181.560 km`). */
 fun formatKm(km: Int): String = NumberFormat.getIntegerInstance(Locale.ITALY).format(km) + " km"
+
+/** Parses user input with comma or dot as decimal separator (e.g. `40,5`); null when blank or invalid. */
+fun parseDecimal(text: String): Double? =
+    text.trim().replace(',', '.').toDoubleOrNull()?.takeIf { it.isFinite() }
+
+/** Dd/MM/yyyy (e.g. `09/11/2026`). */
+fun formatDate(epochDay: Long): String =
+    java.time.LocalDate.ofEpochDay(epochDay)
+        .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.ITALY))

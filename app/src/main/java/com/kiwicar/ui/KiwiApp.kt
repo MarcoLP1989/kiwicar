@@ -14,6 +14,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.kiwicar.ui.components.BottomNav
+import com.kiwicar.ui.entry.AddEntryScreen
 import com.kiwicar.ui.home.HomeScreen
 
 @Composable
@@ -37,7 +38,7 @@ fun KiwiApp() {
             composable("charts") { Placeholder("Grafici") }
             composable("history") { Placeholder("Storico") }
             composable("settings") { Placeholder("Impostazioni") }
-            composable("add") { Placeholder("Nuovo rifornimento") }
+            composable("add") { AddEntryScreen(onSaved = { navController.popBackStack() }) }
         }
     }
 }

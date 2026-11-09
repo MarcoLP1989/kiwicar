@@ -22,4 +22,17 @@ class FormatTest {
         assertEquals("181.560 km", formatKm(181560))
         assertEquals("0 km", formatKm(0))
     }
+
+    @Test
+    fun parseDecimalAcceptsCommaAndDot() {
+        assertEquals(40.5, parseDecimal("40,5")!!, 0.0)
+        assertEquals(40.5, parseDecimal(" 40.5 ")!!, 0.0)
+        assertEquals(null, parseDecimal(""))
+        assertEquals(null, parseDecimal("abc"))
+    }
+
+    @Test
+    fun dateIsItalianFormat() {
+        assertEquals("09/11/2026", formatDate(java.time.LocalDate.of(2026, 11, 9).toEpochDay()))
+    }
 }
