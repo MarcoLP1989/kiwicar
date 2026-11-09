@@ -1,6 +1,7 @@
 package com.kiwicar.ui.charts
 
 import android.content.Context
+import androidx.compose.ui.geometry.Offset
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.kiwicar.data.Entry
@@ -96,6 +97,11 @@ class BuildChartDataTest {
     }
 
     @Test
+    fun todayIsExposedWithSeries() {
+        assertEquals(TODAY, buildChartData(emptyList(), ChartWindow.MESE, TODAY).today)
+    }
+
+    @Test
     fun unitLabelsPerSeries() {
         val d = buildChartData(emptyList(), ChartWindow.ANNO, TODAY)
         assertEquals("L", d.oilTopUps.unit)
@@ -147,5 +153,47 @@ class ChartsViewModelTest {
         val e = vm.series.first { it.oilTopUps.points.isNotEmpty() }.oilTopUps.points[0].source!!.entry
         vm.delete(e)
         assertEquals(0, vm.series.first { it.oilTopUps.points.isEmpty() }.oilTopUps.points.size)
+    }
+}
+
+class ChartGeometryTest {
+    private val area = PlotArea(left = 40f, width = 300f, height = 100f)
+    private fun p(day: Long, v: Double, tappable: Boolean = true) =
+        ChartPoint(day, v, if (tappable) ews(EntryType.OLIO, 0) else null)
+
+    @Test
+    fun singlePointAndZeroRangesProduceFiniteOffsets() {
+        val o = pointOffset(p(5, 0.0), area, 5, 5, 0.0)
+        assertEquals(true, o.x.isFinite() && o.y.isFinite())
+        assertEquals(100f, o.y, 0.001f)
+        val all = pointOffset(p(5, 3.0), area, 0, 10, 3.0)
+        assertEquals(0f, all.y, 0.001f)
+        assertEquals(190f, all.x, 0.001f)
+    }
+
+    @Test
+    fun tapInsideTallBarHitsItAndOutsideMisses() {
+        val bar = p(5, 10.0)
+        val o = pointOffset(bar, area, 0, 10, 10.0) // x=190, top y=0
+        val mid = o.copy(y = 60f)
+        assertEquals(bar, hitTest(listOf(bar), mid, area, 0, 10, 10.0, ChartKind.BAR, 24f, 7f))
+        assertNull(hitTest(listOf(bar), mid.copy(x = 190f + 30f), area, 0, 10, 10.0, ChartKind.BAR, 24f, 7f))
+        val short = p(5, 2.0) // top at y=80
+        assertNull(hitTest(listOf(short), Offset(190f, 20f), area, 0, 10, 10.0, ChartKind.BAR, 24f, 7f))
+    }
+
+    @Test
+    fun nonTappableBarsAreIgnored() {
+        val bar = p(5, 10.0, tappable = false)
+        assertNull(hitTest(listOf(bar), Offset(190f, 60f), area, 0, 10, 10.0, ChartKind.BAR, 24f, 7f))
+    }
+
+    @Test
+    fun lineHitsNearestWithinRadiusOnly() {
+        val a = p(2, 5.0)
+        val b = p(8, 5.0)
+        val ob = pointOffset(b, area, 0, 10, 10.0)
+        assertEquals(b, hitTest(listOf(a, b), ob.copy(x = ob.x + 10f), area, 0, 10, 10.0, ChartKind.LINE, 24f, 7f))
+        assertNull(hitTest(listOf(a, b), Offset(ob.x, ob.y - 60f), area, 0, 10, 10.0, ChartKind.LINE, 24f, 7f))
     }
 }

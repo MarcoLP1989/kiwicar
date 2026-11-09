@@ -26,7 +26,6 @@ import com.kiwicar.data.EntryWithStats
 import com.kiwicar.ui.components.EntryDetailDialog
 import com.kiwicar.ui.theme.KiwiSecondary
 import com.kiwicar.ui.theme.KiwiTertiary
-import java.time.LocalDate
 
 @Composable
 fun ChartsScreen(
@@ -36,7 +35,6 @@ fun ChartsScreen(
     val window by viewModel.window.collectAsStateWithLifecycle()
     val data by viewModel.series.collectAsStateWithLifecycle()
     var selected by remember { mutableStateOf<EntryWithStats?>(null) }
-    val today = remember { LocalDate.now() }
     val onTap: (ChartPoint) -> Unit = { selected = it.source }
 
     Column(
@@ -53,10 +51,10 @@ fun ChartsScreen(
                 ) { Text(w.label) }
             }
         }
-        KiwiChart("Rabbocchi olio", data.oilTopUps, ChartKind.BAR, KiwiTertiary, window, today, onTap)
-        KiwiChart("Consumo benzina", data.fuelConsumption, ChartKind.LINE, KiwiSecondary, window, today, onTap)
-        KiwiChart("Consumo olio", data.oilConsumption, ChartKind.LINE, KiwiTertiary, window, today, onTap)
-        KiwiChart("Costo medio benzina (mensile)", data.monthlyFuelCost, ChartKind.BAR, KiwiSecondary, window, today, onTap)
+        KiwiChart("RABBOCCHI OLIO", data.oilTopUps, ChartKind.BAR, KiwiTertiary, window, data.today, onTap)
+        KiwiChart("CONSUMO BENZINA", data.fuelConsumption, ChartKind.LINE, KiwiSecondary, window, data.today, onTap)
+        KiwiChart("CONSUMO OLIO", data.oilConsumption, ChartKind.LINE, KiwiTertiary, window, data.today, onTap)
+        KiwiChart("COSTO MEDIO BENZINA (MENSILE)", data.monthlyFuelCost, ChartKind.BAR, KiwiSecondary, window, data.today, onTap)
     }
 
     selected?.let { e ->

@@ -36,6 +36,8 @@ data class ChartData(
     val fuelConsumption: ChartSeries = ChartSeries("L/100 km"),
     val oilConsumption: ChartSeries = ChartSeries("L/1.000 km"),
     val monthlyFuelCost: ChartSeries = ChartSeries("€"),
+    /** Last day of the X axis; the same date used to filter the series. */
+    val today: LocalDate = LocalDate.now(),
 )
 
 /** Builds the four series from [entries] (ascending km), keeping dates in [today - window.days, today]. */
@@ -53,8 +55,9 @@ fun buildChartData(entries: List<EntryWithStats>, window: ChartWindow, today: Lo
         .groupBy { YearMonth.from(LocalDate.ofEpochDay(it.entry.dateEpochDay)) }
         .toSortedMap()
         .map { (month, list) -> ChartPoint(month.atDay(1).toEpochDay(), list.sumOf { it.estimatedCost }) }
-    val base = ChartData()
+    val base = ChartData(today = today)
     return ChartData(
+        today = today,
         oilTopUps = base.oilTopUps.copy(points = oil.map { point(it, it.entry.liters) }),
         fuelConsumption = base.fuelConsumption.copy(
             points = fuel.filter { it.consumption != null }.map { point(it, it.consumption!!) },

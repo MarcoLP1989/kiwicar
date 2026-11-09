@@ -36,6 +36,7 @@ private const val X_LABELS = 4
 private val TOUCH_RADIUS = 24.dp
 private val LEFT_MARGIN = 44.dp
 private val BOTTOM_MARGIN = 22.dp
+private val BAR_WIDTH = 14.dp
 
 private fun formatTick(v: Double): String =
     NumberFormat.getNumberInstance(Locale.ITALY).apply {
@@ -64,7 +65,7 @@ fun KiwiChart(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier.fillMaxWidth()) {
-        Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+        Text(title.uppercase(Locale.ITALY), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
         Text(series.unit, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         if (series.points.isEmpty()) {
             Box(Modifier.fillMaxWidth().height(120.dp), contentAlignment = Alignment.Center) {
@@ -101,17 +102,9 @@ private fun ChartCanvas(
             .padding(top = 8.dp)
             .pointerInput(series, window, today) {
                 detectTapGestures { tap ->
-                    val left = LEFT_MARGIN.toPx()
-                    val w = size.width - left
-                    val h = size.height - BOTTOM_MARGIN.toPx()
-                    val hit = series.points
-                        .filter { it.source != null }
-                        .minByOrNull { (pointOffset(it, left, w, h, xFrom, xTo, yMax) - tap).getDistance() }
-                    if (hit != null &&
-                        (pointOffset(hit, left, w, h, xFrom, xTo, yMax) - tap).getDistance() <= TOUCH_RADIUS.toPx()
-                    ) {
-                        onPointTap(hit)
-                    }
+                    val area = PlotArea(LEFT_MARGIN.toPx(), size.width - LEFT_MARGIN.toPx(), size.height - BOTTOM_MARGIN.toPx())
+                    hitTest(series.points, tap, area, xFrom, xTo, yMax, kind, TOUCH_RADIUS.toPx(), BAR_WIDTH.toPx() / 2)
+                        ?.let(onPointTap)
                 }
             },
     ) {
@@ -134,23 +127,17 @@ private fun ChartCanvas(
             drawText(label, topLeft = Offset(tx, h + 4.dp.toPx()))
         }
 
-        val offsets = series.points.map { pointOffset(it, left, w, h, xFrom, xTo, yMax) }
+        val offsets = series.points.map { pointOffset(it, PlotArea(left, w, h), xFrom, xTo, yMax) }
         when (kind) {
             ChartKind.LINE -> {
                 offsets.zipWithNext { a, b -> drawLine(color, a, b, strokeWidth = 2.dp.toPx()) }
                 offsets.forEach { drawCircle(color, radius = 4.dp.toPx(), center = it) }
             }
             ChartKind.BAR -> {
-                val barW = 14.dp.toPx()
+                val barW = BAR_WIDTH.toPx()
                 offsets.forEach { drawRect(color, Offset(it.x - barW / 2, it.y), Size(barW, h - it.y)) }
             }
         }
         drawRect(gridColor, Offset(left, 0f), Size(w, h), style = Stroke(1f))
     }
-}
-
-private fun pointOffset(p: ChartPoint, left: Float, w: Float, h: Float, xFrom: Long, xTo: Long, yMax: Double): Offset {
-    val fx = ((p.epochDay - xFrom).toFloat() / (xTo - xFrom)).coerceIn(0f, 1f)
-    val fy = (p.value / yMax).toFloat().coerceIn(0f, 1f)
-    return Offset(left + w * fx, h - h * fy)
 }

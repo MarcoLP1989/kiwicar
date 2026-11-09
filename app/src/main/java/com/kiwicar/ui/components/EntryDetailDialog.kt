@@ -62,7 +62,7 @@ fun EntryDetailDialog(
                 DetailRow("Km", formatKm(e.odometerKm))
                 DetailRow("Litri", liters)
                 DetailRow("Costo stimato", formatMoney(entryWithStats.estimatedCost))
-                DetailRow("Dal precedente", entryWithStats.distanceFromPreviousKm?.let { formatKm(it) } ?: EMPTY_VALUE)
+                DetailRow("Km dal precedente", entryWithStats.distanceFromPreviousKm?.let { formatKm(it) } ?: EMPTY_VALUE)
                 DetailRow("Consumo", consumption)
             }
         },
