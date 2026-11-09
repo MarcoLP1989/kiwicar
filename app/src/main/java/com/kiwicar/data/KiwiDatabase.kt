@@ -15,8 +15,8 @@ class Converters {
     fun toType(value: String): EntryType = EntryType.valueOf(value)
 }
 
-// exportSchema = false: schema JSON export not configured yet; add a schema dir before the first v2 migration.
-@Database(entities = [Entry::class], version = 1, exportSchema = false)
+// Schema JSON is exported to app/schemas (see ksp arg in build.gradle.kts); commit it with every version bump.
+@Database(entities = [Entry::class], version = 1, exportSchema = true)
 @TypeConverters(Converters::class)
 abstract class KiwiDatabase : RoomDatabase() {
     abstract fun kiwiDao(): KiwiDao
