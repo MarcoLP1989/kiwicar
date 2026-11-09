@@ -1,12 +1,8 @@
 package com.kiwicar.ui
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -20,6 +16,7 @@ import com.kiwicar.ui.components.BottomNav
 import com.kiwicar.ui.entry.AddEntryScreen
 import com.kiwicar.ui.history.HistoryScreen
 import com.kiwicar.ui.home.HomeScreen
+import com.kiwicar.ui.settings.SettingsScreen
 
 @Composable
 fun KiwiApp() {
@@ -41,7 +38,7 @@ fun KiwiApp() {
             composable("home") { HomeScreen(onAddClick = { navController.navigate("add") }) }
             composable("charts") { ChartsScreen(onEditEntry = { navController.navigate("edit/$it") }) }
             composable("history") { HistoryScreen(onEditEntry = { navController.navigate("edit/$it") }) }
-            composable("settings") { Placeholder("Impostazioni") }
+            composable("settings") { SettingsScreen() }
             composable("edit/{id}", arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
                 AddEntryScreen(
                     onSaved = { navController.popBackStack() },
@@ -53,7 +50,3 @@ fun KiwiApp() {
     }
 }
 
-@Composable
-private fun Placeholder(title: String) {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text(title) }
-}

@@ -47,6 +47,8 @@ class KiwiRepository(private val dao: KiwiDao, private val settings: SettingsSto
 
     suspend fun delete(entry: Entry) = dao.delete(entry)
 
+    suspend fun allEntries(): List<Entry> = dao.getAll()
+
     private fun computeStats(entries: List<Entry>, s: KiwiSettings): List<EntryWithStats> =
         entries
             .sortedWith(compareBy<Entry> { it.odometerKm }.thenBy { it.dateEpochDay }.thenBy { it.id })

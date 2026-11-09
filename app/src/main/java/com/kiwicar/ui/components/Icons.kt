@@ -38,5 +38,12 @@ object KiwiIcons {
     )
     val Drop = line("Drop", "M12 3 C12 3 5 11 5 15 A7 7 0 0 0 19 15 C19 11 12 3 12 3 Z")
     val Euro = line("Euro", "M17 6.5 A7 7 0 1 0 17 17.5", "M4 10 H13", "M4 14 H13")
+    val Car = line(
+        "Car",
+        "M3 15 V12 L5.5 7 H18.5 L21 12 V15 H3 Z",
+        "M3 12 H21",
+        "M6 15 V17.5 H8.5 V15",
+        "M15.5 15 V17.5 H18 V15",
+    )
     val Download = line("Download", "M12 4 V15", "M7 10.5 L12 15.5 L17 10.5", "M5 20 H19")
 }
