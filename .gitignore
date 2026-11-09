@@ -1,0 +1,11 @@
+.superpowers/
+.gradle/
+build/
+*/build/
+local.properties
+.idea/
+*.iml
+.kotlin/
+captures/
+.cxx/
+.claude/settings.local.json
