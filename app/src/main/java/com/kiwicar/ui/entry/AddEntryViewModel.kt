@@ -91,16 +91,27 @@ class AddEntryViewModel(
         }
     }
 
-    suspend fun save() {
-        if (!canSave.value) return
-        repository.save(
-            Entry(
-                type = _type.value,
-                dateEpochDay = _dateEpochDay.value,
-                odometerKm = _kmText.value.trim().toInt(),
-                liters = parseDecimal(_litersText.value)!!,
-            ),
-        )
+    private val _isSaving = MutableStateFlow(false)
+    /** True while a save is in flight and after it succeeded (the screen is about to close). */
+    val isSaving: StateFlow<Boolean> = _isSaving
+
+    /** Persists the entry; returns true only if this call saved it. Idempotent while in flight / after success. */
+    suspend fun save(): Boolean {
+        if (_isSaving.value) return false
+        val l = parseDecimal(_litersText.value)
+        val km = _kmText.value.trim().toIntOrNull()
+        val type = _type.value
+        val valid = l != null && l > 0 && km != null && km > 0 &&
+            maxKmByType.value != null && lastKmBelow(km, type, maxKmByType.value) == null
+        if (!valid) return false
+        _isSaving.value = true
+        try {
+            repository.save(Entry(type = type, dateEpochDay = _dateEpochDay.value, odometerKm = km, liters = l))
+        } catch (e: Throwable) {
+            _isSaving.value = false
+            throw e
+        }
+        return true
     }
 
     companion object {

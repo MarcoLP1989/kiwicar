@@ -143,12 +143,32 @@ class AddEntryViewModelTest {
         vm.setKm("1234")
         vm.setDate(today.toEpochDay() - 3)
         vm.canSave.first { it }
-        vm.save()
+        assertEquals(true, vm.save())
         val saved = repo.entriesWithStats().first { it.isNotEmpty() }.single().entry
         assertEquals(EntryType.OLIO, saved.type)
         assertEquals(today.toEpochDay() - 3, saved.dateEpochDay)
         assertEquals(1234, saved.odometerKm)
         assertEquals(0.5, saved.liters, 0.0)
         assertNotNull(saved.id)
+    }
+
+    @Test
+    fun saveTwiceInARowPersistsOnlyOneEntry() = runBlocking {
+        val vm = vm()
+        vm.setKm("1000"); vm.setLiters("40")
+        vm.canSave.first { it }
+        assertEquals(true, vm.save())
+        assertFalse(vm.save())
+        assertEquals(1, repo.entriesWithStats().first { it.isNotEmpty() }.size)
+    }
+
+    @Test
+    fun saveWithInvalidInputReturnsFalseAndPersistsNothing() = runBlocking {
+        val vm = vm()
+        vm.setKm("1000"); vm.setLiters("abc")
+        assertFalse(vm.save())
+        vm.setLiters("0")
+        assertFalse(vm.save())
+        assertEquals(0, repo.entriesWithStats().first().size)
     }
 }

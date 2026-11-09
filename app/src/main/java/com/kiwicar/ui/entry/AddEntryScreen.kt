@@ -60,6 +60,7 @@ fun AddEntryScreen(
     val kmError by viewModel.kmError.collectAsStateWithLifecycle()
     val cost by viewModel.estimatedCost.collectAsStateWithLifecycle()
     val canSave by viewModel.canSave.collectAsStateWithLifecycle()
+    val isSaving by viewModel.isSaving.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     var showPicker by remember { mutableStateOf(false) }
 
@@ -70,7 +71,7 @@ fun AddEntryScreen(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text("NUOVO RIFORNIMENTO", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+        Text("NUOVO INSERIMENTO", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
 
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             TypeButton("Benzina", KiwiIcons.Pump, type == EntryType.BENZINA, KiwiSecondary, Modifier.weight(1f)) {
@@ -137,8 +138,8 @@ fun AddEntryScreen(
         }
 
         Button(
-            onClick = { scope.launch { viewModel.save(); onSaved() } },
-            enabled = canSave,
+            onClick = { scope.launch { if (viewModel.save()) onSaved() } },
+            enabled = canSave && !isSaving,
             colors = ButtonDefaults.buttonColors(containerColor = accent, contentColor = Color.Black),
             modifier = Modifier.fillMaxWidth().height(56.dp),
         ) { Text("Salva") }
