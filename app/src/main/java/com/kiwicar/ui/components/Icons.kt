@@ -9,7 +9,7 @@ import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.unit.dp
 
 /** Minimal line icons: stroke-only 24x24 vectors, tinted by the consumer via Icon(tint). */
-object KiwiIcons {
+object KiwiCarIcons {
     private fun line(name: String, vararg paths: String): ImageVector {
         val b = ImageVector.Builder(name, 24.dp, 24.dp, 24f, 24f)
         paths.forEach { d ->

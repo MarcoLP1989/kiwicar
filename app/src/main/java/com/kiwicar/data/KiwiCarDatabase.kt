@@ -18,17 +18,17 @@ class Converters {
 // Schema JSON is exported to app/schemas (see ksp arg in build.gradle.kts); commit it with every version bump.
 @Database(entities = [Entry::class], version = 1, exportSchema = true)
 @TypeConverters(Converters::class)
-abstract class KiwiDatabase : RoomDatabase() {
-    abstract fun kiwiDao(): KiwiDao
+abstract class KiwiCarDatabase : RoomDatabase() {
+    abstract fun kiwiDao(): KiwiCarDao
 
     companion object {
         @Volatile
-        private var instance: KiwiDatabase? = null
+        private var instance: KiwiCarDatabase? = null
 
-        fun get(context: Context): KiwiDatabase = instance ?: synchronized(this) {
+        fun get(context: Context): KiwiCarDatabase = instance ?: synchronized(this) {
             instance ?: Room.databaseBuilder(
                 context.applicationContext,
-                KiwiDatabase::class.java,
+                KiwiCarDatabase::class.java,
                 "kiwicar.db",
             ).build().also { instance = it }
         }

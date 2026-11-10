@@ -43,11 +43,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kiwicar.data.EntryType
-import com.kiwicar.ui.components.KiwiIcons
+import com.kiwicar.ui.components.KiwiCarIcons
 import com.kiwicar.ui.formatDate
 import com.kiwicar.ui.formatMoney
-import com.kiwicar.ui.theme.KiwiSecondary
-import com.kiwicar.ui.theme.KiwiTertiary
+import com.kiwicar.ui.theme.KiwiCarSecondary
+import com.kiwicar.ui.theme.KiwiCarTertiary
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -77,7 +77,7 @@ fun AddEntryScreen(
     LaunchedEffect(viewModel) { viewModel.messages.collect { snackbar.showSnackbar(it) } }
     var showPicker by remember { mutableStateOf(false) }
 
-    val accent = if (type == EntryType.OLIO) KiwiTertiary else KiwiSecondary
+    val accent = if (type == EntryType.OLIO) KiwiCarTertiary else KiwiCarSecondary
     val decimalKeys = KeyboardOptions(keyboardType = KeyboardType.Decimal)
 
     Box(Modifier.fillMaxSize()) {
@@ -88,10 +88,10 @@ fun AddEntryScreen(
         Text(if (editingId != null) "MODIFICA INSERIMENTO" else "NUOVO INSERIMENTO", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
 
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            TypeButton("Benzina", KiwiIcons.Pump, type == EntryType.BENZINA, KiwiSecondary, Modifier.weight(1f)) {
+            TypeButton("Benzina", KiwiCarIcons.Pump, type == EntryType.BENZINA, KiwiCarSecondary, Modifier.weight(1f)) {
                 viewModel.setType(EntryType.BENZINA)
             }
-            TypeButton("Olio", KiwiIcons.Drop, type == EntryType.OLIO, KiwiTertiary, Modifier.weight(1f)) {
+            TypeButton("Olio", KiwiCarIcons.Drop, type == EntryType.OLIO, KiwiCarTertiary, Modifier.weight(1f)) {
                 viewModel.setType(EntryType.OLIO)
             }
         }
@@ -145,7 +145,7 @@ fun AddEntryScreen(
 
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Icon(KiwiIcons.Euro, contentDescription = null, tint = accent)
+                Icon(KiwiCarIcons.Euro, contentDescription = null, tint = accent)
                 Text("Costo stimato", style = MaterialTheme.typography.titleMedium)
             }
             Text(formatMoney(cost), style = MaterialTheme.typography.titleMedium, color = accent, fontWeight = FontWeight.Bold)

@@ -19,7 +19,7 @@ import com.kiwicar.ui.home.HomeScreen
 import com.kiwicar.ui.settings.SettingsScreen
 
 @Composable
-fun KiwiApp() {
+fun KiwiCarApp() {
     val navController = rememberNavController()
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
     Scaffold(

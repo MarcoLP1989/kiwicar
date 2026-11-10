@@ -15,14 +15,14 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
-class KiwiDaoTest {
-    private lateinit var db: KiwiDatabase
-    private lateinit var dao: KiwiDao
+class KiwiCarDaoTest {
+    private lateinit var db: KiwiCarDatabase
+    private lateinit var dao: KiwiCarDao
 
     @Before
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        db = Room.inMemoryDatabaseBuilder(context, KiwiDatabase::class.java)
+        db = Room.inMemoryDatabaseBuilder(context, KiwiCarDatabase::class.java)
             .allowMainThreadQueries()
             .build()
         dao = db.kiwiDao()

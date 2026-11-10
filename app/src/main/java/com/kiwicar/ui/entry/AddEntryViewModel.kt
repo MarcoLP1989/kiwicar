@@ -7,11 +7,11 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.kiwicar.KiwiApplication
+import com.kiwicar.KiwiCarApplication
 import com.kiwicar.domain.Calculations
 import com.kiwicar.data.Entry
 import com.kiwicar.data.EntryType
-import com.kiwicar.data.KiwiRepository
+import com.kiwicar.data.KiwiCarRepository
 import com.kiwicar.data.SettingsStore
 import com.kiwicar.ui.formatDate
 import com.kiwicar.ui.formatKm
@@ -33,7 +33,7 @@ import java.time.LocalDate
 enum class OilChoice { HALF, ONE, OTHER }
 
 class AddEntryViewModel(
-    private val repository: KiwiRepository,
+    private val repository: KiwiCarRepository,
     settingsStore: SettingsStore,
     /** When set, the form edits that entry instead of creating a new one. */
     private val editingId: Long? = null,
@@ -214,14 +214,14 @@ class AddEntryViewModel(
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val container = (this[APPLICATION_KEY] as KiwiApplication).container
+                val container = (this[APPLICATION_KEY] as KiwiCarApplication).container
                 AddEntryViewModel(container.repository, container.settingsStore)
             }
         }
 
         fun factoryForEdit(id: Long): ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val container = (this[APPLICATION_KEY] as KiwiApplication).container
+                val container = (this[APPLICATION_KEY] as KiwiCarApplication).container
                 AddEntryViewModel(container.repository, container.settingsStore, editingId = id)
             }
         }

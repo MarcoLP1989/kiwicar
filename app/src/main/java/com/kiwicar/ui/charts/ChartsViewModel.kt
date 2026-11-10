@@ -6,11 +6,11 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.kiwicar.KiwiApplication
+import com.kiwicar.KiwiCarApplication
 import com.kiwicar.data.Entry
 import com.kiwicar.data.EntryType
 import com.kiwicar.data.EntryWithStats
-import com.kiwicar.data.KiwiRepository
+import com.kiwicar.data.KiwiCarRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -70,7 +70,7 @@ fun buildChartData(entries: List<EntryWithStats>, window: ChartWindow, today: Lo
 }
 
 class ChartsViewModel(
-    private val repository: KiwiRepository,
+    private val repository: KiwiCarRepository,
     today: () -> LocalDate = { LocalDate.now() },
 ) : ViewModel() {
 
@@ -98,7 +98,7 @@ class ChartsViewModel(
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val container = (this[APPLICATION_KEY] as KiwiApplication).container
+                val container = (this[APPLICATION_KEY] as KiwiCarApplication).container
                 ChartsViewModel(container.repository)
             }
         }

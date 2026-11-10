@@ -20,7 +20,7 @@ data class HomeStats(
     val avgYearlyCost: Double,
 )
 
-class KiwiRepository(private val dao: KiwiDao, private val settings: SettingsStore) {
+class KiwiCarRepository(private val dao: KiwiCarDao, private val settings: SettingsStore) {
 
     fun entriesWithStats(): Flow<List<EntryWithStats>> =
         combine(dao.observeAll(), settings.settings) { entries, s -> computeStats(entries, s) }
@@ -49,7 +49,7 @@ class KiwiRepository(private val dao: KiwiDao, private val settings: SettingsSto
 
     suspend fun allEntries(): List<Entry> = dao.getAll()
 
-    private fun computeStats(entries: List<Entry>, s: KiwiSettings): List<EntryWithStats> =
+    private fun computeStats(entries: List<Entry>, s: KiwiCarSettings): List<EntryWithStats> =
         entries
             .sortedWith(compareBy<Entry> { it.odometerKm }.thenBy { it.dateEpochDay }.thenBy { it.id })
             .map { e ->

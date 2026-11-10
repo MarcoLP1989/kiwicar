@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 
-data class KiwiSettings(
+data class KiwiCarSettings(
     val carName: String = "",
     val initialKm: Int = 0,
     val fuelPricePerLiter: Double = 0.0,
@@ -31,11 +31,11 @@ private val Context.kiwiDataStore by preferencesDataStore(
 class SettingsStore(context: Context) {
     private val dataStore = context.applicationContext.kiwiDataStore
 
-    val settings: Flow<KiwiSettings> = dataStore.data
+    val settings: Flow<KiwiCarSettings> = dataStore.data
         .catch { if (it is IOException) emit(emptyPreferences()) else throw it }
         .map { it.toSettings() }
 
-    suspend fun update(block: (KiwiSettings) -> KiwiSettings) {
+    suspend fun update(block: (KiwiCarSettings) -> KiwiCarSettings) {
         dataStore.edit { prefs ->
             val new = block(prefs.toSettings())
             prefs[CAR_NAME] = new.carName
@@ -45,7 +45,7 @@ class SettingsStore(context: Context) {
         }
     }
 
-    private fun Preferences.toSettings() = KiwiSettings(
+    private fun Preferences.toSettings() = KiwiCarSettings(
         carName = this[CAR_NAME] ?: "",
         initialKm = this[INITIAL_KM] ?: 0,
         fuelPricePerLiter = this[FUEL_PRICE] ?: 0.0,

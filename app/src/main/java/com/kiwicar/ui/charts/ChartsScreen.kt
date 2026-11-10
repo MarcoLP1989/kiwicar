@@ -24,8 +24,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kiwicar.data.EntryWithStats
 import com.kiwicar.ui.components.EntryDetailDialog
-import com.kiwicar.ui.theme.KiwiSecondary
-import com.kiwicar.ui.theme.KiwiTertiary
+import com.kiwicar.ui.theme.KiwiCarSecondary
+import com.kiwicar.ui.theme.KiwiCarTertiary
 
 @Composable
 fun ChartsScreen(
@@ -51,10 +51,10 @@ fun ChartsScreen(
                 ) { Text(w.label) }
             }
         }
-        KiwiChart("RABBOCCHI OLIO", data.oilTopUps, ChartKind.BAR, KiwiTertiary, window, data.today, onTap)
-        KiwiChart("CONSUMO BENZINA", data.fuelConsumption, ChartKind.LINE, KiwiSecondary, window, data.today, onTap)
-        KiwiChart("CONSUMO OLIO", data.oilConsumption, ChartKind.LINE, KiwiTertiary, window, data.today, onTap)
-        KiwiChart("COSTO MEDIO BENZINA (MENSILE)", data.monthlyFuelCost, ChartKind.BAR, KiwiSecondary, window, data.today, onTap)
+        KiwiCarChart("RABBOCCHI OLIO", data.oilTopUps, ChartKind.BAR, KiwiCarTertiary, window, data.today, onTap)
+        KiwiCarChart("CONSUMO BENZINA", data.fuelConsumption, ChartKind.LINE, KiwiCarSecondary, window, data.today, onTap)
+        KiwiCarChart("CONSUMO OLIO", data.oilConsumption, ChartKind.LINE, KiwiCarTertiary, window, data.today, onTap)
+        KiwiCarChart("COSTO MEDIO BENZINA (MENSILE)", data.monthlyFuelCost, ChartKind.BAR, KiwiCarSecondary, window, data.today, onTap)
     }
 
     selected?.let { e ->

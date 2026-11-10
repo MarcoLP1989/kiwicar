@@ -6,10 +6,10 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.kiwicar.KiwiApplication
+import com.kiwicar.KiwiCarApplication
 import com.kiwicar.data.EntryType
 import com.kiwicar.data.HomeStats
-import com.kiwicar.data.KiwiRepository
+import com.kiwicar.data.KiwiCarRepository
 import com.kiwicar.data.SettingsStore
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
@@ -33,7 +33,7 @@ data class HomeUiState(
 private const val MAX_OIL_BARS = 10
 
 class HomeViewModel(
-    repository: KiwiRepository,
+    repository: KiwiCarRepository,
     settingsStore: SettingsStore,
     today: () -> LocalDate = { LocalDate.now() },
 ) : ViewModel() {
@@ -61,7 +61,7 @@ class HomeViewModel(
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val container = (this[APPLICATION_KEY] as KiwiApplication).container
+                val container = (this[APPLICATION_KEY] as KiwiCarApplication).container
                 HomeViewModel(container.repository, container.settingsStore)
             }
         }

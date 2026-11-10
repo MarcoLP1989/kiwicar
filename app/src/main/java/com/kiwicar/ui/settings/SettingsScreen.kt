@@ -37,7 +37,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.kiwicar.ui.components.KiwiIcons
+import com.kiwicar.ui.components.KiwiCarIcons
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -61,7 +61,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel(factory = SettingsVi
     ) {
         Text("IMPOSTAZIONI", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
 
-        SectionTitle("AUTO", KiwiIcons.Car)
+        SectionTitle("AUTO", KiwiCarIcons.Car)
         OutlinedTextField(
             value = viewModel.carName,
             onValueChange = { viewModel.carName = it },
@@ -81,7 +81,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel(factory = SettingsVi
         )
         Button(onClick = viewModel::onSaveCar, Modifier.fillMaxWidth()) { Text("Salva auto") }
 
-        SectionTitle("PREZZI", KiwiIcons.Euro)
+        SectionTitle("PREZZI", KiwiCarIcons.Euro)
         val decimalKeys = KeyboardOptions(keyboardType = KeyboardType.Decimal)
         OutlinedTextField(
             value = viewModel.fuelPrice,
@@ -104,7 +104,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel(factory = SettingsVi
         )
         Button(onClick = viewModel::onSavePrices, Modifier.fillMaxWidth()) { Text("Salva prezzi") }
 
-        SectionTitle("DATI", KiwiIcons.Download)
+        SectionTitle("DATI", KiwiCarIcons.Download)
         OutlinedButton(
             onClick = {
                 scope.launch {
@@ -122,7 +122,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel(factory = SettingsVi
             },
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Icon(KiwiIcons.Download, contentDescription = null, modifier = Modifier.size(20.dp))
+            Icon(KiwiCarIcons.Download, contentDescription = null, modifier = Modifier.size(20.dp))
             Text("Esporta CSV", Modifier.padding(start = 8.dp))
         }
         if (exportError) {

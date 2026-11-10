@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.kiwicar.ui.KiwiApp
-import com.kiwicar.ui.theme.KiwiTheme
+import com.kiwicar.ui.KiwiCarApp
+import com.kiwicar.ui.theme.KiwiCarTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,9 +21,9 @@ class MainActivity : ComponentActivity() {
             navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
         )
         setContent {
-            KiwiTheme {
+            KiwiCarTheme {
                 Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    KiwiApp()
+                    KiwiCarApp()
                 }
             }
         }

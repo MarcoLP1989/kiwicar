@@ -54,7 +54,7 @@ private fun axisDate(epochDay: Long, window: ChartWindow): String {
  * Points with a non-null [ChartPoint.source] are tappable via [onPointTap].
  */
 @Composable
-fun KiwiChart(
+fun KiwiCarChart(
     title: String,
     series: ChartSeries,
     kind: ChartKind,

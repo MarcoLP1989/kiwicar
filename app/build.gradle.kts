@@ -45,6 +45,26 @@ ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
 }
 
+// Copia l'APK di ogni variante in build/outputs/kiwicar/ come kiwicar-<versionName>.apk
+// (release) o kiwicar-<versionName>-<variante>.apk (altre varianti).
+androidComponents {
+    onVariants { variant ->
+        val versionName = variant.outputs.single().versionName
+        val suffix = if (variant.buildType == "release") "" else "-${variant.name}"
+        val capitalized = variant.name.replaceFirstChar { it.uppercase() }
+        val copyApk = tasks.register<Copy>("copy${capitalized}KiwiCarApk") {
+            from(variant.artifacts.get(com.android.build.api.artifact.SingleArtifact.APK)) {
+                include("*.apk")
+            }
+            into(layout.buildDirectory.dir("outputs/kiwicar"))
+            rename { "kiwicar-${versionName.get()}$suffix.apk" }
+        }
+        tasks.matching { it.name == "assemble$capitalized" }.configureEach {
+            finalizedBy(copyApk)
+        }
+    }
+}
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)

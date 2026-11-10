@@ -17,20 +17,20 @@ import java.time.LocalDate
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
-class KiwiRepositoryTest {
-    private lateinit var db: KiwiDatabase
+class KiwiCarRepositoryTest {
+    private lateinit var db: KiwiCarDatabase
     private lateinit var store: SettingsStore
-    private lateinit var repo: KiwiRepository
+    private lateinit var repo: KiwiCarRepository
 
     @Before
     fun setUp() = runBlocking {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        db = Room.inMemoryDatabaseBuilder(context, KiwiDatabase::class.java)
+        db = Room.inMemoryDatabaseBuilder(context, KiwiCarDatabase::class.java)
             .allowMainThreadQueries()
             .build()
         store = SettingsStore(context)
-        store.update { KiwiSettings() }
-        repo = KiwiRepository(db.kiwiDao(), store)
+        store.update { KiwiCarSettings() }
+        repo = KiwiCarRepository(db.kiwiDao(), store)
     }
 
     @After

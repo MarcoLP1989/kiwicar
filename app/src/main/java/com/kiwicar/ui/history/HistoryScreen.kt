@@ -28,14 +28,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kiwicar.data.EntryType
 import com.kiwicar.data.EntryWithStats
 import com.kiwicar.ui.components.EntryDetailDialog
-import com.kiwicar.ui.components.KiwiIcons
+import com.kiwicar.ui.components.KiwiCarIcons
 import com.kiwicar.ui.formatConsumption
 import com.kiwicar.ui.formatDate
 import com.kiwicar.ui.formatKm
 import com.kiwicar.ui.formatLiters
 import com.kiwicar.ui.formatMoney
-import com.kiwicar.ui.theme.KiwiSecondary
-import com.kiwicar.ui.theme.KiwiTertiary
+import com.kiwicar.ui.theme.KiwiCarSecondary
+import com.kiwicar.ui.theme.KiwiCarTertiary
 
 @Composable
 fun HistoryScreen(
@@ -78,7 +78,7 @@ fun HistoryScreen(
 private fun HistoryRow(item: EntryWithStats, modifier: Modifier) {
     val e = item.entry
     val isFuel = e.type == EntryType.BENZINA
-    val accent = if (isFuel) KiwiSecondary else KiwiTertiary
+    val accent = if (isFuel) KiwiCarSecondary else KiwiCarTertiary
     val liters = formatLiters(e.liters)
     val consumption = formatConsumption(item.consumption, e.type)
 
@@ -88,7 +88,7 @@ private fun HistoryRow(item: EntryWithStats, modifier: Modifier) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
-            if (isFuel) KiwiIcons.Pump else KiwiIcons.Drop,
+            if (isFuel) KiwiCarIcons.Pump else KiwiCarIcons.Drop,
             contentDescription = if (isFuel) "Benzina" else "Olio",
             tint = accent,
         )

@@ -6,10 +6,10 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.kiwicar.KiwiApplication
+import com.kiwicar.KiwiCarApplication
 import com.kiwicar.data.Entry
 import com.kiwicar.data.EntryWithStats
-import com.kiwicar.data.KiwiRepository
+import com.kiwicar.data.KiwiCarRepository
 import android.util.Log
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
-class HistoryViewModel(private val repository: KiwiRepository) : ViewModel() {
+class HistoryViewModel(private val repository: KiwiCarRepository) : ViewModel() {
 
     /** Newest first (date DESC, ties by km DESC); consumption is derived reactively by the repository. */
     val items: StateFlow<List<EntryWithStats>> = repository.entriesWithStats()
@@ -51,7 +51,7 @@ class HistoryViewModel(private val repository: KiwiRepository) : ViewModel() {
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                HistoryViewModel((this[APPLICATION_KEY] as KiwiApplication).container.repository)
+                HistoryViewModel((this[APPLICATION_KEY] as KiwiCarApplication).container.repository)
             }
         }
     }

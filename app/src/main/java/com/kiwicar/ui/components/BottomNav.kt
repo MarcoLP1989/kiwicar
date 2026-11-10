@@ -26,10 +26,10 @@ import androidx.compose.ui.unit.dp
 data class BottomTab(val route: String, val label: String, val icon: ImageVector)
 
 val bottomTabs = listOf(
-    BottomTab("home", "Home", KiwiIcons.Home),
-    BottomTab("charts", "Grafici", KiwiIcons.Chart),
-    BottomTab("history", "Storico", KiwiIcons.History),
-    BottomTab("settings", "Impostazioni", KiwiIcons.Settings),
+    BottomTab("home", "Home", KiwiCarIcons.Home),
+    BottomTab("charts", "Grafici", KiwiCarIcons.Chart),
+    BottomTab("history", "Storico", KiwiCarIcons.History),
+    BottomTab("settings", "Impostazioni", KiwiCarIcons.Settings),
 )
 
 /** Active tab = green pill with icon + label; the others show the icon only. */

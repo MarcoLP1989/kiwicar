@@ -23,14 +23,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.kiwicar.ui.components.KiwiIcons
+import com.kiwicar.ui.components.KiwiCarIcons
 import com.kiwicar.ui.components.StatCard
 import com.kiwicar.ui.components.StatValue
 import com.kiwicar.ui.formatConsumption
 import com.kiwicar.ui.formatKm
 import com.kiwicar.ui.formatMoney
-import com.kiwicar.ui.theme.KiwiSecondary
-import com.kiwicar.ui.theme.KiwiTertiary
+import com.kiwicar.ui.theme.KiwiCarSecondary
+import com.kiwicar.ui.theme.KiwiCarTertiary
 
 @Composable
 fun HomeScreen(onAddClick: () -> Unit, viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory)) {
@@ -49,15 +49,15 @@ fun HomeContent(state: HomeUiState, onAddClick: () -> Unit) {
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
         )
-        Text(formatKm(state.currentKm), style = MaterialTheme.typography.titleMedium, color = KiwiSecondary)
+        Text(formatKm(state.currentKm), style = MaterialTheme.typography.titleMedium, color = KiwiCarSecondary)
 
-        StatCard("Consumi", KiwiIcons.Pump, KiwiSecondary) {
+        StatCard("Consumi", KiwiCarIcons.Pump, KiwiCarSecondary) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 StatValue(formatConsumption(state.stats.fuelLper100), "L/100 km benzina")
                 StatValue(formatConsumption(state.stats.oilLper1000), "L/1.000 km olio")
             }
         }
-        StatCard("Costo medio benzina", KiwiIcons.Euro, KiwiSecondary) {
+        StatCard("Costo medio benzina", KiwiCarIcons.Euro, KiwiCarSecondary) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 StatValue(formatMoney(state.stats.avgMonthlyCost), "al mese")
                 StatValue(formatMoney(state.stats.avgYearlyCost), "all’anno")
@@ -70,7 +70,7 @@ fun HomeContent(state: HomeUiState, onAddClick: () -> Unit) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        StatCard("Rabbocchi olio", KiwiIcons.Drop, KiwiTertiary) {
+        StatCard("Rabbocchi olio", KiwiCarIcons.Drop, KiwiCarTertiary) {
             OilBars(state.oilTopUps)
         }
 
@@ -97,7 +97,7 @@ private fun OilBars(liters: List<Double>) {
         liters.forEachIndexed { i, l ->
             val h = (size.height * (l / max)).toFloat().coerceAtLeast(2.dp.toPx())
             drawRoundRect(
-                color = KiwiTertiary,
+                color = KiwiCarTertiary,
                 topLeft = Offset(i * (barW + gap), size.height - h),
                 size = Size(barW, h),
                 cornerRadius = CornerRadius(3.dp.toPx()),

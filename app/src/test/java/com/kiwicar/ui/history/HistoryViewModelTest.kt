@@ -5,9 +5,9 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.kiwicar.data.Entry
 import com.kiwicar.data.EntryType
-import com.kiwicar.data.KiwiDatabase
-import com.kiwicar.data.KiwiRepository
-import com.kiwicar.data.KiwiSettings
+import com.kiwicar.data.KiwiCarDatabase
+import com.kiwicar.data.KiwiCarRepository
+import com.kiwicar.data.KiwiCarSettings
 import com.kiwicar.data.SettingsStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -29,17 +29,17 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
 class HistoryViewModelTest {
-    private lateinit var db: KiwiDatabase
-    private lateinit var repo: KiwiRepository
+    private lateinit var db: KiwiCarDatabase
+    private lateinit var repo: KiwiCarRepository
 
     @Before
     fun setUp() = runBlocking {
         Dispatchers.setMain(UnconfinedTestDispatcher())
         val context = ApplicationProvider.getApplicationContext<Context>()
-        db = Room.inMemoryDatabaseBuilder(context, KiwiDatabase::class.java).allowMainThreadQueries().build()
+        db = Room.inMemoryDatabaseBuilder(context, KiwiCarDatabase::class.java).allowMainThreadQueries().build()
         val store = SettingsStore(context)
-        store.update { KiwiSettings(fuelPricePerLiter = 2.0, oilPricePerLiter = 10.0) }
-        repo = KiwiRepository(db.kiwiDao(), store)
+        store.update { KiwiCarSettings(fuelPricePerLiter = 2.0, oilPricePerLiter = 10.0) }
+        repo = KiwiCarRepository(db.kiwiDao(), store)
     }
 
     @After

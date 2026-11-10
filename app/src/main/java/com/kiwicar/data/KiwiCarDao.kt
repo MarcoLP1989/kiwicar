@@ -7,7 +7,7 @@ import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface KiwiDao {
+interface KiwiCarDao {
     @Query("SELECT * FROM entries ORDER BY dateEpochDay DESC, id DESC")
     fun observeAll(): Flow<List<Entry>>
 

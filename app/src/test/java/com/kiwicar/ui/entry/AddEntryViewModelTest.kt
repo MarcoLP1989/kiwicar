@@ -5,10 +5,10 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.kiwicar.data.Entry
 import com.kiwicar.data.EntryType
-import com.kiwicar.data.KiwiDao
-import com.kiwicar.data.KiwiDatabase
-import com.kiwicar.data.KiwiRepository
-import com.kiwicar.data.KiwiSettings
+import com.kiwicar.data.KiwiCarDao
+import com.kiwicar.data.KiwiCarDatabase
+import com.kiwicar.data.KiwiCarRepository
+import com.kiwicar.data.KiwiCarSettings
 import com.kiwicar.data.SettingsStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -33,21 +33,21 @@ import java.time.LocalDate
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
 class AddEntryViewModelTest {
-    private lateinit var db: KiwiDatabase
+    private lateinit var db: KiwiCarDatabase
     private lateinit var store: SettingsStore
-    private lateinit var repo: KiwiRepository
+    private lateinit var repo: KiwiCarRepository
     private val today = LocalDate.of(2026, 11, 9)
 
     @Before
     fun setUp() = runBlocking {
         Dispatchers.setMain(UnconfinedTestDispatcher())
         val context = ApplicationProvider.getApplicationContext<Context>()
-        db = Room.inMemoryDatabaseBuilder(context, KiwiDatabase::class.java)
+        db = Room.inMemoryDatabaseBuilder(context, KiwiCarDatabase::class.java)
             .allowMainThreadQueries()
             .build()
         store = SettingsStore(context)
-        store.update { KiwiSettings(fuelPricePerLiter = 2.0, oilPricePerLiter = 10.0) }
-        repo = KiwiRepository(db.kiwiDao(), store)
+        store.update { KiwiCarSettings(fuelPricePerLiter = 2.0, oilPricePerLiter = 10.0) }
+        repo = KiwiCarRepository(db.kiwiDao(), store)
     }
 
     @After
@@ -168,10 +168,10 @@ class AddEntryViewModelTest {
 
     @Test
     fun saveFailureKeepsInputPostsMessageAndAllowsRetry() = runBlocking {
-        val failing = object : KiwiDao by db.kiwiDao() {
+        val failing = object : KiwiCarDao by db.kiwiDao() {
             override suspend fun upsert(e: Entry): Long = throw java.io.IOException("disk full")
         }
-        val vm = AddEntryViewModel(KiwiRepository(failing, store), store) { today }
+        val vm = AddEntryViewModel(KiwiCarRepository(failing, store), store) { today }
         vm.setKm("1000"); vm.setLiters("40")
         vm.canSave.first { it }
         assertFalse(vm.save())

@@ -10,8 +10,8 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.kiwicar.KiwiApplication
-import com.kiwicar.data.KiwiRepository
+import com.kiwicar.KiwiCarApplication
+import com.kiwicar.data.KiwiCarRepository
 import com.kiwicar.data.SettingsStore
 import com.kiwicar.export.CsvExporter
 import com.kiwicar.ui.parseDecimal
@@ -28,7 +28,7 @@ import java.util.Locale
 
 class SettingsViewModel(
     private val settingsStore: SettingsStore,
-    private val repository: KiwiRepository,
+    private val repository: KiwiCarRepository,
 ) : ViewModel() {
 
     var carName by mutableStateOf("")
@@ -113,7 +113,7 @@ class SettingsViewModel(
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val c = (this[APPLICATION_KEY] as KiwiApplication).container
+                val c = (this[APPLICATION_KEY] as KiwiCarApplication).container
                 SettingsViewModel(c.settingsStore, c.repository)
             }
         }

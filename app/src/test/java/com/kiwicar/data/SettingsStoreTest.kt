@@ -17,11 +17,11 @@ class SettingsStoreTest {
     private val store = SettingsStore(ApplicationProvider.getApplicationContext<Context>())
 
     @Before
-    fun resetSharedStore() = runBlocking { store.update { KiwiSettings() } }
+    fun resetSharedStore() = runBlocking { store.update { KiwiCarSettings() } }
 
     @Test
     fun defaultsThenUpdatesArePersistedAndMerged() = runBlocking {
-        assertEquals(KiwiSettings(), store.settings.first())
+        assertEquals(KiwiCarSettings(), store.settings.first())
         store.update { it.copy(fuelPricePerLiter = 1.72) }
         store.update { it.copy(carName = "Fiat Panda", initialKm = 85000, oilPricePerLiter = 9.5) }
         val s = store.settings.first()
